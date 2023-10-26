@@ -11,9 +11,11 @@ import {
 
 const { width, height } = Dimensions.get("screen");
 
+// Theme Colors
 const LIGHT = "#f3f2e5";
 const DARK = "#242c40";
 
+// Individual Square Component
 function Square({ value, onSquareClick }) {
   const colorScheme = useColorScheme();
   const themeTextStyle =
@@ -31,6 +33,7 @@ function Square({ value, onSquareClick }) {
   );
 }
 
+// Board Component
 function Board({ xIsNext, squares, onPlay, playerX, winner, reset }) {
   const colorScheme = useColorScheme();
   const themeTextStyle =
@@ -38,9 +41,11 @@ function Board({ xIsNext, squares, onPlay, playerX, winner, reset }) {
 
   function handleClick(i) {
     if ((xIsNext && playerX) || (!xIsNext && !playerX)) {
+      // Disable if there's a winner or if the square is already filled
       if (winner || squares[i]) {
         return;
       }
+      // Update state
       const nextSquares = squares.slice();
       if (xIsNext) {
         nextSquares[i] = "X";
@@ -107,6 +112,7 @@ export default function App() {
   const xIsNext = currentMove % 2 === 0;
   const currentSquares = history[currentMove];
 
+  // Manage game state
   function handlePlay(nextSquares) {
     const nextHistory = [...history.slice(0, currentMove + 1), nextSquares];
     setHistory(nextHistory);
@@ -139,6 +145,7 @@ export default function App() {
 }
 
 function calculateWinner(squares) {
+  // All possible win cases
   const lines = [
     [0, 1, 2],
     [3, 4, 5],
@@ -151,6 +158,7 @@ function calculateWinner(squares) {
   ];
   for (let i = 0; i < lines.length; i++) {
     const [a, b, c] = lines[i];
+    // See if any case contains the same piece (X or O)
     if (squares[a] && squares[a] === squares[b] && squares[a] === squares[c]) {
       return squares[a];
     }
