@@ -1,18 +1,41 @@
 import { StatusBar } from "expo-status-bar";
 import { useState } from "react";
-import { Dimensions, Pressable, StyleSheet, Text, View } from "react-native";
+import {
+  Dimensions,
+  Pressable,
+  StyleSheet,
+  Text,
+  View,
+  useColorScheme,
+} from "react-native";
 
 const { width, height } = Dimensions.get("screen");
 
+const LIGHT = "#f3f2e5";
+const DARK = "#242c40";
+
 function Square({ value, onSquareClick }) {
+  const colorScheme = useColorScheme();
+  const themeTextStyle =
+    colorScheme === "light" ? styles.lightThemeText : styles.darkThemeText;
+  const themeBorderStyle =
+    colorScheme === "light" ? styles.lightBorder : styles.darkBorder;
+
   return (
-    <Pressable onPress={onSquareClick} style={styles.square}>
-      <Text style={styles.xo}>{value}</Text>
+    <Pressable
+      onPress={onSquareClick}
+      style={[styles.square, themeBorderStyle]}
+    >
+      <Text style={[styles.xo, themeTextStyle]}>{value}</Text>
     </Pressable>
   );
 }
 
 function Board({ xIsNext, squares, onPlay, playerX, winner, reset }) {
+  const colorScheme = useColorScheme();
+  const themeTextStyle =
+    colorScheme === "light" ? styles.lightThemeText : styles.darkThemeText;
+
   function handleClick(i) {
     if ((xIsNext && playerX) || (!xIsNext && !playerX)) {
       if (winner || squares[i]) {
@@ -44,18 +67,7 @@ function Board({ xIsNext, squares, onPlay, playerX, winner, reset }) {
   }
 
   return (
-    <View
-      style={{
-        flex: 1,
-        width: width,
-        padding: 10,
-        gap: 10,
-        alignItems: "center",
-        transform: playerX ? [{ rotate: "180deg" }] : [],
-        borderTopWidth: 1,
-        borderTopColor: "#aaa",
-      }}
-    >
+    <View style={[styles.board, playerX && styles.flip]}>
       <View style={{ height: 50 }}>
         {winner && (
           <Pressable onPress={reset} style={styles.playAgain}>
@@ -63,7 +75,7 @@ function Board({ xIsNext, squares, onPlay, playerX, winner, reset }) {
           </Pressable>
         )}
       </View>
-      <Text style={styles.statusText}>{status}</Text>
+      <Text style={[styles.statusText, themeTextStyle]}>{status}</Text>
       <View>
         <View style={styles.boardRow}>
           <Square value={squares[0]} onSquareClick={() => handleClick(0)} />
@@ -86,6 +98,10 @@ function Board({ xIsNext, squares, onPlay, playerX, winner, reset }) {
 }
 
 export default function App() {
+  const colorScheme = useColorScheme();
+  const themeContainerStyle =
+    colorScheme === "light" ? styles.lightContainer : styles.darkContainer;
+
   const [history, setHistory] = useState([Array(9).fill(null)]);
   const [currentMove, setCurrentMove] = useState(0);
   const xIsNext = currentMove % 2 === 0;
@@ -100,25 +116,23 @@ export default function App() {
   const winner = calculateWinner(currentSquares);
 
   return (
-    <View style={styles.container}>
-      <View style={{ justifyContent: "center", alignItems: "center", flex: 1 }}>
-        <Board
-          xIsNext={xIsNext}
-          squares={currentSquares}
-          onPlay={handlePlay}
-          playerX={true}
-          winner={winner}
-          reset={() => setCurrentMove(0)}
-        />
-        <Board
-          xIsNext={xIsNext}
-          squares={currentSquares}
-          onPlay={handlePlay}
-          playerX={false}
-          winner={winner}
-          reset={() => setCurrentMove(0)}
-        />
-      </View>
+    <View style={[styles.container, themeContainerStyle]}>
+      <Board
+        xIsNext={xIsNext}
+        squares={currentSquares}
+        onPlay={handlePlay}
+        playerX={true}
+        winner={winner}
+        reset={() => setCurrentMove(0)}
+      />
+      <Board
+        xIsNext={xIsNext}
+        squares={currentSquares}
+        onPlay={handlePlay}
+        playerX={false}
+        winner={winner}
+        reset={() => setCurrentMove(0)}
+      />
       <StatusBar style="auto" />
     </View>
   );
@@ -147,10 +161,39 @@ function calculateWinner(squares) {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: "#fff",
     alignItems: "center",
     justifyContent: "center",
     paddingVertical: "20%",
+  },
+  lightContainer: {
+    backgroundColor: LIGHT,
+  },
+  darkContainer: {
+    backgroundColor: DARK,
+  },
+  lightThemeText: {
+    color: DARK,
+  },
+  darkThemeText: {
+    color: LIGHT,
+  },
+  lightBorder: {
+    borderColor: DARK,
+  },
+  darkBorder: {
+    borderColor: LIGHT,
+  },
+  board: {
+    flex: 1,
+    width: width,
+    padding: 10,
+    gap: 10,
+    alignItems: "center",
+    borderTopWidth: 1,
+    borderTopColor: "#aaa",
+  },
+  flip: {
+    transform: [{ rotate: "180deg" }],
   },
   boardRow: {
     flexDirection: "row",
@@ -183,6 +226,6 @@ const styles = StyleSheet.create({
   playAgainText: {
     fontSize: 24,
     fontWeight: "bold",
-    color: "white",
+    color: LIGHT,
   },
 });
