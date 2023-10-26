@@ -1,25 +1,8 @@
 import { StatusBar } from "expo-status-bar";
 import { useState } from "react";
-import { Pressable, StyleSheet, Text, View } from "react-native";
+import { Dimensions, Pressable, StyleSheet, Text, View } from "react-native";
 
-function PlayAgain({ reset, winner }) {
-  return (
-    <View
-      style={{
-        height: 30,
-        flex: 1,
-        alignItems: "center",
-        justifyContent: "center",
-      }}
-    >
-      {winner && (
-        <Pressable onPress={reset} style={styles.playAgain}>
-          <Text style={styles.playAgainText}>Play Again</Text>
-        </Pressable>
-      )}
-    </View>
-  );
-}
+const { width, height } = Dimensions.get("screen");
 
 function Square({ value, onSquareClick }) {
   return (
@@ -29,10 +12,10 @@ function Square({ value, onSquareClick }) {
   );
 }
 
-function Board({ xIsNext, squares, onPlay, playerX }) {
+function Board({ xIsNext, squares, onPlay, playerX, winner, reset }) {
   function handleClick(i) {
     if ((xIsNext && playerX) || (!xIsNext && !playerX)) {
-      if (calculateWinner(squares) || squares[i]) {
+      if (winner || squares[i]) {
         return;
       }
       const nextSquares = squares.slice();
@@ -45,7 +28,6 @@ function Board({ xIsNext, squares, onPlay, playerX }) {
     }
   }
 
-  const winner = calculateWinner(squares);
   let status;
   if (winner) {
     if ((playerX && winner == "X") || (!playerX && winner == "O")) {
@@ -62,22 +44,42 @@ function Board({ xIsNext, squares, onPlay, playerX }) {
   }
 
   return (
-    <View style={{ flex: 1, alignItems: "center" }}>
-      <Text style={styles.winnerText}>{status}</Text>
-      <View style={styles.boardRow}>
-        <Square value={squares[0]} onSquareClick={() => handleClick(0)} />
-        <Square value={squares[1]} onSquareClick={() => handleClick(1)} />
-        <Square value={squares[2]} onSquareClick={() => handleClick(2)} />
+    <View
+      style={{
+        flex: 1,
+        width: width,
+        padding: 10,
+        gap: 10,
+        alignItems: "center",
+        transform: playerX ? [{ rotate: "180deg" }] : [],
+        borderTopWidth: 1,
+        borderTopColor: "#aaa",
+      }}
+    >
+      <View style={{ height: 50 }}>
+        {winner && (
+          <Pressable onPress={reset} style={styles.playAgain}>
+            <Text style={styles.playAgainText}>Play Again</Text>
+          </Pressable>
+        )}
       </View>
-      <View style={styles.boardRow}>
-        <Square value={squares[3]} onSquareClick={() => handleClick(3)} />
-        <Square value={squares[4]} onSquareClick={() => handleClick(4)} />
-        <Square value={squares[5]} onSquareClick={() => handleClick(5)} />
-      </View>
-      <View style={styles.boardRow}>
-        <Square value={squares[6]} onSquareClick={() => handleClick(6)} />
-        <Square value={squares[7]} onSquareClick={() => handleClick(7)} />
-        <Square value={squares[8]} onSquareClick={() => handleClick(8)} />
+      <Text style={styles.statusText}>{status}</Text>
+      <View>
+        <View style={styles.boardRow}>
+          <Square value={squares[0]} onSquareClick={() => handleClick(0)} />
+          <Square value={squares[1]} onSquareClick={() => handleClick(1)} />
+          <Square value={squares[2]} onSquareClick={() => handleClick(2)} />
+        </View>
+        <View style={styles.boardRow}>
+          <Square value={squares[3]} onSquareClick={() => handleClick(3)} />
+          <Square value={squares[4]} onSquareClick={() => handleClick(4)} />
+          <Square value={squares[5]} onSquareClick={() => handleClick(5)} />
+        </View>
+        <View style={styles.boardRow}>
+          <Square value={squares[6]} onSquareClick={() => handleClick(6)} />
+          <Square value={squares[7]} onSquareClick={() => handleClick(7)} />
+          <Square value={squares[8]} onSquareClick={() => handleClick(8)} />
+        </View>
       </View>
     </View>
   );
@@ -105,13 +107,16 @@ export default function App() {
           squares={currentSquares}
           onPlay={handlePlay}
           playerX={true}
+          winner={winner}
+          reset={() => setCurrentMove(0)}
         />
-        <PlayAgain reset={() => setCurrentMove(0)} winner={winner} />
         <Board
           xIsNext={xIsNext}
           squares={currentSquares}
           onPlay={handlePlay}
           playerX={false}
+          winner={winner}
+          reset={() => setCurrentMove(0)}
         />
       </View>
       <StatusBar style="auto" />
@@ -151,10 +156,9 @@ const styles = StyleSheet.create({
     flexDirection: "row",
   },
   square: {
-    backgroundColor: "#fff",
     borderWidth: 1,
-    height: 70,
-    width: 70,
+    height: width * 0.2,
+    width: width * 0.2,
     padding: 0,
     alignItems: "center",
     justifyContent: "center",
@@ -163,11 +167,14 @@ const styles = StyleSheet.create({
     fontSize: 40,
     fontWeight: "bold",
   },
-  winnerText: {
+  statusText: {
     fontSize: 24,
     fontWeight: "bold",
   },
   playAgain: {
+    flex: 1,
+    alignItems: "center",
+    justifyContent: "center",
     paddingHorizontal: 40,
     paddingVertical: 10,
     backgroundColor: "#67f",
