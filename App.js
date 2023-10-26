@@ -2,39 +2,68 @@ import { StatusBar } from "expo-status-bar";
 import { useState } from "react";
 import { Pressable, StyleSheet, Text, View } from "react-native";
 
+function PlayAgain({ reset, winner }) {
+  return (
+    <View
+      style={{
+        height: 30,
+        flex: 1,
+        alignItems: "center",
+        justifyContent: "center",
+      }}
+    >
+      {winner && (
+        <Pressable onPress={reset} style={styles.playAgain}>
+          <Text style={styles.playAgainText}>Play Again</Text>
+        </Pressable>
+      )}
+    </View>
+  );
+}
+
 function Square({ value, onSquareClick }) {
   return (
     <Pressable onPress={onSquareClick} style={styles.square}>
-      <Text>{value}</Text>
+      <Text style={styles.xo}>{value}</Text>
     </Pressable>
   );
 }
 
-function Board({ xIsNext, squares, onPlay }) {
+function Board({ xIsNext, squares, onPlay, playerX }) {
   function handleClick(i) {
-    if (calculateWinner(squares) || squares[i]) {
-      return;
+    if ((xIsNext && playerX) || (!xIsNext && !playerX)) {
+      if (calculateWinner(squares) || squares[i]) {
+        return;
+      }
+      const nextSquares = squares.slice();
+      if (xIsNext) {
+        nextSquares[i] = "X";
+      } else {
+        nextSquares[i] = "O";
+      }
+      onPlay(nextSquares);
     }
-    const nextSquares = squares.slice();
-    if (xIsNext) {
-      nextSquares[i] = "X";
-    } else {
-      nextSquares[i] = "O";
-    }
-    onPlay(nextSquares);
   }
 
   const winner = calculateWinner(squares);
   let status;
   if (winner) {
-    status = "Winner: " + winner;
+    if ((playerX && winner == "X") || (!playerX && winner == "O")) {
+      status = "You Won!";
+    } else {
+      status = "You Lost!";
+    }
   } else {
-    status = "Next player: " + (xIsNext ? "X" : "O");
+    if ((playerX && xIsNext) || (!playerX && !xIsNext)) {
+      status = "Your Turn";
+    } else {
+      status = " ";
+    }
   }
 
   return (
-    <>
-      <Text>{status}</Text>
+    <View style={{ flex: 1, alignItems: "center" }}>
+      <Text style={styles.winnerText}>{status}</Text>
       <View style={styles.boardRow}>
         <Square value={squares[0]} onSquareClick={() => handleClick(0)} />
         <Square value={squares[1]} onSquareClick={() => handleClick(1)} />
@@ -50,7 +79,7 @@ function Board({ xIsNext, squares, onPlay }) {
         <Square value={squares[7]} onSquareClick={() => handleClick(7)} />
         <Square value={squares[8]} onSquareClick={() => handleClick(8)} />
       </View>
-    </>
+    </View>
   );
 }
 
@@ -66,10 +95,24 @@ export default function App() {
     setCurrentMove(nextHistory.length - 1);
   }
 
+  const winner = calculateWinner(currentSquares);
+
   return (
     <View style={styles.container}>
-      <View>
-        <Board xIsNext={xIsNext} squares={currentSquares} onPlay={handlePlay} />
+      <View style={{ justifyContent: "center", alignItems: "center", flex: 1 }}>
+        <Board
+          xIsNext={xIsNext}
+          squares={currentSquares}
+          onPlay={handlePlay}
+          playerX={true}
+        />
+        <PlayAgain reset={() => setCurrentMove(0)} winner={winner} />
+        <Board
+          xIsNext={xIsNext}
+          squares={currentSquares}
+          onPlay={handlePlay}
+          playerX={false}
+        />
       </View>
       <StatusBar style="auto" />
     </View>
@@ -102,6 +145,7 @@ const styles = StyleSheet.create({
     backgroundColor: "#fff",
     alignItems: "center",
     justifyContent: "center",
+    paddingVertical: "20%",
   },
   boardRow: {
     flexDirection: "row",
@@ -109,9 +153,29 @@ const styles = StyleSheet.create({
   square: {
     backgroundColor: "#fff",
     borderWidth: 1,
-    height: 34,
-    width: 34,
+    height: 70,
+    width: 70,
     padding: 0,
-    textAlign: "center",
+    alignItems: "center",
+    justifyContent: "center",
+  },
+  xo: {
+    fontSize: 40,
+    fontWeight: "bold",
+  },
+  winnerText: {
+    fontSize: 24,
+    fontWeight: "bold",
+  },
+  playAgain: {
+    paddingHorizontal: 40,
+    paddingVertical: 10,
+    backgroundColor: "#67f",
+    borderRadius: 5,
+  },
+  playAgainText: {
+    fontSize: 24,
+    fontWeight: "bold",
+    color: "white",
   },
 });
