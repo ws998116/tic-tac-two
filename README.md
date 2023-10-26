@@ -1,6 +1,6 @@
 # Tic-Tac-Two
 
-## A React Native Exercise
+## A React Native game for 2! 🤼
 
 ## Installation
 
