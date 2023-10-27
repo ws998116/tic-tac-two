@@ -58,7 +58,9 @@ function Board({ xIsNext, squares, onPlay, playerX, winner, reset }) {
 
   let status;
   if (winner) {
-    if ((playerX && winner == "X") || (!playerX && winner == "O")) {
+    if (winner === "tie") {
+      status = "Tie!";
+    } else if ((playerX && winner == "X") || (!playerX && winner == "O")) {
       status = "You Won!";
     } else {
       status = "You Lost!";
@@ -162,6 +164,15 @@ function calculateWinner(squares) {
     if (squares[a] && squares[a] === squares[b] && squares[a] === squares[c]) {
       return squares[a];
     }
+  }
+  let full = true;
+  for (let i = 0; i < squares.length; i++) {
+    if (squares[i] === null) {
+      full = false;
+    }
+  }
+  if (full) {
+    return "tie";
   }
   return null;
 }
