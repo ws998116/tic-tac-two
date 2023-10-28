@@ -15,18 +15,28 @@ const { width, height } = Dimensions.get("screen");
 const LIGHT = "#f3f2e5";
 const DARK = "#242c40";
 
+const bottomBorderIndecies = [0, 1, 2, 3, 4, 5];
+const rightBorderIndecies = [0, 1, 3, 4, 6, 7];
+
 // Individual Square Component
-function Square({ value, onSquareClick }) {
+function Square({ value, onSquareClick, index }) {
   const colorScheme = useColorScheme();
   const themeTextStyle =
     colorScheme === "light" ? styles.lightThemeText : styles.darkThemeText;
   const themeBorderStyle =
     colorScheme === "light" ? styles.lightBorder : styles.darkBorder;
+  let squareBorderStyle = [styles.square];
+  if (bottomBorderIndecies.includes(index)) {
+    squareBorderStyle.push(styles.bottomBorder);
+  }
+  if (rightBorderIndecies.includes(index)) {
+    squareBorderStyle.push(styles.rightBorder);
+  }
 
   return (
     <Pressable
       onPress={onSquareClick}
-      style={[styles.square, themeBorderStyle]}
+      style={[...squareBorderStyle, themeBorderStyle]}
     >
       <Text style={[styles.xo, themeTextStyle]}>{value}</Text>
     </Pressable>
@@ -85,19 +95,19 @@ function Board({ xIsNext, squares, onPlay, playerX, winner, reset }) {
       <Text style={[styles.statusText, themeTextStyle]}>{status}</Text>
       <View>
         <View style={styles.boardRow}>
-          <Square value={squares[0]} onSquareClick={() => handleClick(0)} />
-          <Square value={squares[1]} onSquareClick={() => handleClick(1)} />
-          <Square value={squares[2]} onSquareClick={() => handleClick(2)} />
+          <Square value={squares[0]} onSquareClick={() => handleClick(0)} index={0} />
+          <Square value={squares[1]} onSquareClick={() => handleClick(1)} index={1}/>
+          <Square value={squares[2]} onSquareClick={() => handleClick(2)} index={2}/>
         </View>
         <View style={styles.boardRow}>
-          <Square value={squares[3]} onSquareClick={() => handleClick(3)} />
-          <Square value={squares[4]} onSquareClick={() => handleClick(4)} />
-          <Square value={squares[5]} onSquareClick={() => handleClick(5)} />
+          <Square value={squares[3]} onSquareClick={() => handleClick(3)} index={3}/>
+          <Square value={squares[4]} onSquareClick={() => handleClick(4)} index={4}/>
+          <Square value={squares[5]} onSquareClick={() => handleClick(5)} index={5}/>
         </View>
         <View style={styles.boardRow}>
-          <Square value={squares[6]} onSquareClick={() => handleClick(6)} />
-          <Square value={squares[7]} onSquareClick={() => handleClick(7)} />
-          <Square value={squares[8]} onSquareClick={() => handleClick(8)} />
+          <Square value={squares[6]} onSquareClick={() => handleClick(6)} index={6}/>
+          <Square value={squares[7]} onSquareClick={() => handleClick(7)} index={7}/>
+          <Square value={squares[8]} onSquareClick={() => handleClick(8)} index={8}/>
         </View>
       </View>
     </View>
@@ -218,12 +228,17 @@ const styles = StyleSheet.create({
     flexDirection: "row",
   },
   square: {
-    borderWidth: 1,
     height: width * 0.2,
     width: width * 0.2,
     padding: 0,
     alignItems: "center",
     justifyContent: "center",
+  },
+  bottomBorder: {
+    borderBottomWidth: 2,
+  },
+  rightBorder: {
+    borderRightWidth: 2,
   },
   xo: {
     fontSize: 40,
