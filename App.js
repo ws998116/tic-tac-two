@@ -1,5 +1,5 @@
 import { StatusBar } from "expo-status-bar";
-import { useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import {
   Dimensions,
   Pressable,
@@ -7,6 +7,7 @@ import {
   Text,
   View,
   useColorScheme,
+  Animated,
 } from "react-native";
 
 const { width, height } = Dimensions.get("screen");
@@ -41,6 +42,7 @@ function Square({ value, onSquareClick, index }) {
     <Pressable
       onPress={onSquareClick}
       style={[...squareBorderStyle, themeBorderStyle]}
+      android_disableSound
     >
       <Text style={[styles.xo, themeTextStyle]}>{value}</Text>
     </Pressable>
@@ -52,6 +54,24 @@ function Board({ xIsNext, squares, onPlay, playerX, winner, reset }) {
   const colorScheme = useColorScheme();
   const themeTextStyle =
     colorScheme === "light" ? styles.lightThemeText : styles.darkThemeText;
+
+  const fadeAnim = useRef(new Animated.Value(1)).current; // Start opacity at full
+
+  useEffect(() => {
+    if ((playerX && xIsNext) || (!playerX && !xIsNext) || winner) {
+      Animated.timing(fadeAnim, {
+        toValue: 1,
+        duration: 500,
+        useNativeDriver: true,
+      }).start();
+    } else {
+      Animated.timing(fadeAnim, {
+        toValue: 0.5,
+        duration: 500,
+        useNativeDriver: true,
+      }).start();
+    }
+  }, [fadeAnim, playerX, xIsNext, winner]);
 
   function handleClick(i) {
     if ((xIsNext && playerX) || (!xIsNext && !playerX)) {
@@ -88,7 +108,15 @@ function Board({ xIsNext, squares, onPlay, playerX, winner, reset }) {
   }
 
   return (
-    <View style={[styles.board, playerX && styles.flip]}>
+    <Animated.View
+      style={[
+        styles.board,
+        playerX && styles.flip,
+        {
+          opacity: fadeAnim,
+        },
+      ]}
+    >
       <View style={{ height: 50 }}>
         {winner && (
           <Pressable onPress={reset} style={styles.playAgain}>
@@ -152,7 +180,7 @@ function Board({ xIsNext, squares, onPlay, playerX, winner, reset }) {
           />
         </View>
       </View>
-    </View>
+    </Animated.View>
   );
 }
 
