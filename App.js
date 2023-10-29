@@ -15,6 +15,10 @@ const { width, height } = Dimensions.get("screen");
 const LIGHT = "#f3f2e5";
 const DARK = "#242c40";
 
+// PIECES
+const X = "❌";
+const O = "⭕";
+
 const bottomBorderIndecies = [0, 1, 2, 3, 4, 5];
 const rightBorderIndecies = [0, 1, 3, 4, 6, 7];
 
@@ -58,9 +62,9 @@ function Board({ xIsNext, squares, onPlay, playerX, winner, reset }) {
       // Update state
       const nextSquares = squares.slice();
       if (xIsNext) {
-        nextSquares[i] = "X";
+        nextSquares[i] = X;
       } else {
-        nextSquares[i] = "O";
+        nextSquares[i] = O;
       }
       onPlay(nextSquares);
     }
@@ -70,7 +74,7 @@ function Board({ xIsNext, squares, onPlay, playerX, winner, reset }) {
   if (winner) {
     if (winner === "tie") {
       status = "Tie!";
-    } else if ((playerX && winner == "X") || (!playerX && winner == "O")) {
+    } else if ((playerX && winner == X) || (!playerX && winner == O)) {
       status = "You Won!";
     } else {
       status = "You Lost!";
@@ -88,26 +92,64 @@ function Board({ xIsNext, squares, onPlay, playerX, winner, reset }) {
       <View style={{ height: 50 }}>
         {winner && (
           <Pressable onPress={reset} style={styles.playAgain}>
-            <Text style={styles.playAgainText}>Play Again</Text>
+            <Text adjustsFontSizeToFit style={styles.playAgainText}>
+              Play Again
+            </Text>
           </Pressable>
         )}
       </View>
       <Text style={[styles.statusText, themeTextStyle]}>{status}</Text>
       <View>
         <View style={styles.boardRow}>
-          <Square value={squares[0]} onSquareClick={() => handleClick(0)} index={0} />
-          <Square value={squares[1]} onSquareClick={() => handleClick(1)} index={1}/>
-          <Square value={squares[2]} onSquareClick={() => handleClick(2)} index={2}/>
+          <Square
+            value={squares[0]}
+            onSquareClick={() => handleClick(0)}
+            index={0}
+          />
+          <Square
+            value={squares[1]}
+            onSquareClick={() => handleClick(1)}
+            index={1}
+          />
+          <Square
+            value={squares[2]}
+            onSquareClick={() => handleClick(2)}
+            index={2}
+          />
         </View>
         <View style={styles.boardRow}>
-          <Square value={squares[3]} onSquareClick={() => handleClick(3)} index={3}/>
-          <Square value={squares[4]} onSquareClick={() => handleClick(4)} index={4}/>
-          <Square value={squares[5]} onSquareClick={() => handleClick(5)} index={5}/>
+          <Square
+            value={squares[3]}
+            onSquareClick={() => handleClick(3)}
+            index={3}
+          />
+          <Square
+            value={squares[4]}
+            onSquareClick={() => handleClick(4)}
+            index={4}
+          />
+          <Square
+            value={squares[5]}
+            onSquareClick={() => handleClick(5)}
+            index={5}
+          />
         </View>
         <View style={styles.boardRow}>
-          <Square value={squares[6]} onSquareClick={() => handleClick(6)} index={6}/>
-          <Square value={squares[7]} onSquareClick={() => handleClick(7)} index={7}/>
-          <Square value={squares[8]} onSquareClick={() => handleClick(8)} index={8}/>
+          <Square
+            value={squares[6]}
+            onSquareClick={() => handleClick(6)}
+            index={6}
+          />
+          <Square
+            value={squares[7]}
+            onSquareClick={() => handleClick(7)}
+            index={7}
+          />
+          <Square
+            value={squares[8]}
+            onSquareClick={() => handleClick(8)}
+            index={8}
+          />
         </View>
       </View>
     </View>
@@ -168,6 +210,7 @@ function calculateWinner(squares) {
     [0, 4, 8],
     [2, 4, 6],
   ];
+  // Calculate winner
   for (let i = 0; i < lines.length; i++) {
     const [a, b, c] = lines[i];
     // See if any case contains the same piece (X or O)
@@ -175,6 +218,7 @@ function calculateWinner(squares) {
       return squares[a];
     }
   }
+  // Calculate tie game
   let full = true;
   for (let i = 0; i < squares.length; i++) {
     if (squares[i] === null) {
